@@ -1,0 +1,9 @@
+version: 2.0
+jobs:
+  build:
+    docker:
+      # misc/Dockerfile
+      - image: quay.io/r7vme/clang
+    steps:
+      - checkout
+      - run: ./misc/build.sh
