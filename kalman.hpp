@@ -2,6 +2,17 @@
 #include <Eigen/Dense>
 
 const int STATE_SIZE = 6;
+const double OBSERVED = 1.0;
+const double DEFAULT_VARIANCE[STATE_SIZE] = {0.5, 0.5, 0.05, 0.1, 0.1, 0.01};
+
+enum StateMembers {
+  StateMemberX = 0,
+  StateMemberY,
+  StateMemberYaw,
+  StateMemberVx,
+  StateMemberVy,
+  StateMemberVyaw
+};
 
 struct Observation {
   Eigen::Matrix<double, STATE_SIZE, 1> observation;

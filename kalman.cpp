@@ -16,20 +16,20 @@ Kalman::Kalman()
 void Kalman::reset()
 {
   H_.setZero();
-  H_(0, 0) = 1.;  // observe x
-  H_(1, 1) = 1.;  // observe y
-  H_(2, 2) = 1.;  // observe yaw
+  H_(StateMemberX, StateMemberX) = OBSERVED;      // observe x
+  H_(StateMemberX, StateMemberX) = OBSERVED;      // observe y
+  H_(StateMemberYaw, StateMemberYaw) = OBSERVED;  // observe yaw
 
   F_.setIdentity();
 
   // Process noise covariance. TODO: Make configurable.
   Q_.setZero();
-  Q_(0, 0) = 0.5;
-  Q_(1, 1) = 0.5;
-  Q_(2, 2) = 0.05;  // x,y,yaw
-  Q_(3, 3) = 0.1;
-  Q_(4, 4) = 0.1;
-  Q_(5, 5) = 0.01;  // vx,vy,vyaw
+  Q_(StateMemberX, StateMemberX) = DEFAULT_VARIANCE[StateMemberX];
+  Q_(StateMemberY, StateMemberY) = DEFAULT_VARIANCE[StateMemberY];
+  Q_(StateMemberYaw, StateMemberYaw) = DEFAULT_VARIANCE[StateMemberYaw];
+  Q_(StateMemberVx, StateMemberVx) = DEFAULT_VARIANCE[StateMemberVx];
+  Q_(StateMemberVy, StateMemberVy) = DEFAULT_VARIANCE[StateMemberVy];
+  Q_(StateMemberVyaw, StateMemberVyaw) = DEFAULT_VARIANCE[StateMemberVyaw];
 
   state_.setZero();
   P_.setZero();
@@ -44,10 +44,11 @@ void Kalman::predict(const double timestamp)
   }
 
   // Update transition matrix (motion model) with time delta.
+  double yaw = state_(StateMemberYaw);
   double dt = timestamp - lastPredTime_;
-  F_(0, 3) = dt;
-  F_(1, 4) = dt;
-  F_(2, 5) = dt;
+  F_(StateMemberX, StateMemberVx) = ::cos(yaw) * dt;
+  F_(StateMemberY, StateMemberVy) = ::sin(yaw) * dt;
+  F_(StateMemberYaw, StateMemberVyaw) = dt;
 
   // Propagate state and error.
   state_ = F_ * state_;
