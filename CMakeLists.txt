@@ -12,9 +12,11 @@ include(Catch)
 
 add_library(kalman STATIC src/kalman.hpp src/kalman.cpp)
 target_link_libraries(kalman eigen)
+target_compile_options(kalman PRIVATE -Werror -Wall -Wextra)
 
 add_executable(test_kalman src/kalman_test.cpp)
 target_link_libraries(test_kalman kalman catch2)
+target_compile_options(test_kalman PRIVATE -Werror -Wall -Wextra)
 catch_discover_tests(test_kalman)
 
 #add_executable(main main.cpp)

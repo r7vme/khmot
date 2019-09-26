@@ -43,7 +43,6 @@ TEST_CASE("Test non-omnidirectional case movement along Y", "[kalman]")
   constexpr int corr_steps = 50;
   constexpr double dy = 1.0;
   constexpr double deviation = 1.0;
-  constexpr double total_dist = total_steps * dy;
   bool isOmnidirectional = false;
 
   Kalman k(isOmnidirectional);

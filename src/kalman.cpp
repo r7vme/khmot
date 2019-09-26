@@ -5,10 +5,10 @@ Kalman::Kalman(bool omnidirectional, const Eigen::MatrixXd& noiseCov)
     : initialized_(false),
       omnidirectional_(omnidirectional),
       lastPredTime_(0.),
-      state_(STATE_SIZE),
       H_(STATE_SIZE, STATE_SIZE),
       F_(STATE_SIZE, STATE_SIZE),
       Q_(noiseCov),
+      state_(STATE_SIZE),
       P_(STATE_SIZE, STATE_SIZE)
 {
   H_.setZero();
