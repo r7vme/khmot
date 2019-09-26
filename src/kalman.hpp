@@ -32,8 +32,8 @@ class Kalman {
  public:
   Kalman(bool omnidirectional = true,
          const Eigen::MatrixXd& noiseCov = defaultNoiseCov);
-  const Eigen::MatrixXd& covariance() const { return P_; };
-  const Eigen::VectorXd& state() const { return state_; };
+  const Covariance& covariance() const { return P_; };
+  const State& state() const { return state_; };
 
   void correct(const Observation& obs);
   void predict(const double timestamp);
@@ -44,9 +44,9 @@ class Kalman {
   bool omnidirectional_;  // Restrict motion sideways for non-omnidirectional
                           // robots
   double lastPredTime_;
-  Eigen::MatrixXd H_;      // Observation matrix
-  Eigen::MatrixXd F_;      // State transition matrix (system dynamics)
-  Eigen::MatrixXd Q_;      // Process noise covariance matrix
-  Eigen::VectorXd state_;  // Estimated state vector
-  Eigen::MatrixXd P_;      // Estimated error covariance matrix
+  Eigen::MatrixXd H_;  // Observation matrix
+  Eigen::MatrixXd F_;  // State transition matrix (system dynamics)
+  Eigen::MatrixXd Q_;  // Process noise covariance matrix
+  State state_;        // Estimated state vector
+  Covariance P_;       // Estimated error covariance matrix
 };
