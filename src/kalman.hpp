@@ -37,6 +37,7 @@ class Kalman {
 
   void correct(const Observation& obs);
   void predict(const double timestamp);
+  double lastObsTime() const { return lastObsTime_; };
   void reset();
 
  private:
@@ -44,6 +45,7 @@ class Kalman {
   bool omnidirectional_;  // Restrict motion sideways for non-omnidirectional
                           // robots
   double lastPredTime_;
+  double lastObsTime_;
   Eigen::MatrixXd H_;  // Observation matrix
   Eigen::MatrixXd F_;  // State transition matrix (system dynamics)
   Eigen::MatrixXd Q_;  // Process noise covariance matrix

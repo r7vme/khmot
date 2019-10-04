@@ -5,6 +5,7 @@ Kalman::Kalman(bool omnidirectional, const Eigen::MatrixXd& noiseCov)
     : initialized_(false),
       omnidirectional_(omnidirectional),
       lastPredTime_(0.),
+      lastObsTime_(0.),
       H_(STATE_SIZE, STATE_SIZE),
       F_(STATE_SIZE, STATE_SIZE),
       Q_(noiseCov),
@@ -27,6 +28,7 @@ void Kalman::correct(const Observation& obs)
     // Use first observation as ground truth.
     state_ = obs.state;
     lastPredTime_ = obs.timestamp;
+    P_ = obs.covariance;
     initialized_ = true;
     return;
   }
@@ -44,6 +46,8 @@ void Kalman::correct(const Observation& obs)
   // (3) Update state covariance. P = (I - KH)P
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
   P_.noalias() = (I - K * H_) * P_;
+
+  lastObsTime_ = obs.timestamp;
 }
 
 void Kalman::predict(const double timestamp)
