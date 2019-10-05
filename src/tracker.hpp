@@ -1,10 +1,19 @@
 #pragma once
-#include <vector>
 #include "kalman.hpp"
+
+#include <limits>
+#include <memory>
+#include <vector>
 
 using namespace std;
 
+namespace khmot {
+
+const double defaultTimeout = 10.0;
+const double defaultMahalanobisThresh = 3.0;
+
 using TrackID = unsigned int;
+constexpr TrackID maxTrackID = numeric_limits<TrackID>::max();
 
 struct Track {
   TrackID trackID;
@@ -16,18 +25,26 @@ struct Track {
   }
 };
 
+inline TrackID genTrackID(TrackID cur)
+{
+  return (cur == maxTrackID) ? 0 : ++cur;
+}
+
 class Tracker {
  public:
-  Tracker();
+  Tracker(double timeout = defaultTimeout,
+          double mahalanobisThresh = defaultMahalanobisThresh);
   void update(const vector<Observation>& obs, const double timestamp);
-  const vector<Track>& tracks() const { return tracks_; };
+  const auto& tracks() const { return tracks_; };
 
  private:
-  TrackID currTrackID_;
-  bool initialized_;
-  double mahalonobisDistThresh_;
+  TrackID curTrackID_;
+  const double mahalonobisThresh_;
   const double trackTimeout_;
-  vector<Track> tracks_;
+  vector<unique_ptr<Track>> tracks_;
 
-  TrackID genTrackID();
+  void GC(const double timestamp);
+  inline TrackID newTrackID() { return curTrackID_ = genTrackID(curTrackID_); }
 };
+
+}  // namespace khmot

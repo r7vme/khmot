@@ -1,14 +1,21 @@
 #pragma once
 #include <Eigen/Dense>
 
+namespace khmot {
+
 const int STATE_SIZE = 6;
 const double OBSERVED = 1.0;
 
+// clang-format off
 const auto defaultNoiseCov =
     (Eigen::MatrixXd(STATE_SIZE, STATE_SIZE) << 0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
-     0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, .05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-     0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, .01)
+                                                0.0, 0.5, 0.0, 0.0, 0.0, 0.0,
+                                                0.0, 0.0, .05, 0.0, 0.0, 0.0,
+                                                0.0, 0.0, 0.0, 0.1, 0.0, 0.0,
+                                                0.0, 0.0, 0.0, 0.0, 0.1, 0.0,
+                                                0.0, 0.0, 0.0, 0.0, 0.0, .01)
         .finished();
+// clang-format on
 
 using State = Eigen::Matrix<double, STATE_SIZE, 1>;
 using Covariance = Eigen::Matrix<double, STATE_SIZE, STATE_SIZE>;
@@ -52,3 +59,5 @@ class Kalman {
   State state_;        // Estimated state vector
   Covariance P_;       // Estimated error covariance matrix
 };
+
+}  // namespace khmot

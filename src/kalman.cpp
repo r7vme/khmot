@@ -1,5 +1,8 @@
 #include "kalman.hpp"
+
 #include <Eigen/Dense>
+
+namespace khmot {
 
 Kalman::Kalman(bool omnidirectional, const Eigen::MatrixXd& noiseCov)
     : initialized_(false),
@@ -76,3 +79,5 @@ void Kalman::reset()
   P_.setZero();
   initialized_ = false;
 }
+
+}  // namespace khmot
