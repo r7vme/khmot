@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/r7vme/khmot.svg?style=svg&circle-token=1e8d4b00566db51b2cba5178e5281a2c1093b789)](https://circleci.com/gh/r7vme/khmot)
 
-Multiple Object Tracker based on Hungarian algorithm (data association) and Kalman filter (motion estimation)
+Multiple Object Tracker based on Hungarian algorithm (data association) and Kalman filter (motion estimation).
 
 ## Tracker
 
@@ -33,4 +33,6 @@ make
 
 # Credits
 
+- [Data association techniques overview](http://ais.informatik.uni-freiburg.de/teaching/ws10/robotics2/pdfs/rob2-15-dataassociation.pdf)
+- [Kalman filter overview](http://www.sci.utah.edu/~gerig/CS6320-S2013/Materials/MI37slides-Kalman.pdf)
 - [Hungarian Alghoritm implementation by Cong Ma](https://github.com/mcximing/hungarian-algorithm-cpp)
