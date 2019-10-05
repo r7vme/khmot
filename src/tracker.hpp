@@ -39,7 +39,7 @@ class Tracker {
 
  private:
   TrackID curTrackID_;
-  const double mahalonobisThresh_;
+  const double mahalanobisThresh_;
   const double trackTimeout_;
   vector<unique_ptr<Track>> tracks_;
 

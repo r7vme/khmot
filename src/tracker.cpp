@@ -12,7 +12,7 @@ namespace khmot {
 
 Tracker::Tracker(double timeout, double mahalanobisThresh)
     : curTrackID_(maxTrackID),
-      mahalonobisThresh_(mahalanobisThresh),
+      mahalanobisThresh_(mahalanobisThresh),
       trackTimeout_(timeout),
       tracks_(){};
 
@@ -55,7 +55,7 @@ void Tracker::update(const vector<Observation>& obsArr, const double timestamp)
 
     if (obsID == -1) continue;  // skip if no assignement
 
-    if (costs[i][obsID] > mahalonobisThresh_) continue;  // skip if above thresh
+    if (costs[i][obsID] > mahalanobisThresh_) continue;  // skip if above thresh
 
     isObsAssigned[obsID] = true;
     tracks_[i]->KF.correct(obsArr[obsID]);

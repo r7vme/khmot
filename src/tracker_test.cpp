@@ -7,6 +7,49 @@
 using namespace khmot;
 
 // test mahalanobis distance thresh
+TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
+{
+  constexpr double dx = 10.0;
+  constexpr double dt = 1.0;
+  constexpr double deviation = 1.0;
+  constexpr double total_steps = 100;
+  constexpr double timeout = total_steps * 2 * dt; // set timeout > total time
+  constexpr double smallMahalanobisThresh = 0.1;
+  constexpr double bigMahalanobisThresh = 100.0;
+
+  Observation obs;
+  obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
+  obs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
+                   (deviation * deviation);
+  obs.timestamp = 0.0;
+  vector<Observation> v{obs};
+
+  // test for small
+  {
+    Tracker t(timeout, smallMahalanobisThresh);
+    double timestamp(0.0);
+    for (int i = 0; i < total_steps; ++i) {
+      timestamp += dt;
+      v[0].timestamp = timestamp;
+      v[0].state(0) += dx; // object moves faster than mahalanobisThresh
+      t.update(v, timestamp);
+    }
+    CHECK(t.tracks().size() == 100); // for every observation new track was created
+  }
+
+  // test for big
+  {
+    Tracker t(timeout, bigMahalanobisThresh);
+    double timestamp(0.0);
+    for (int i = 0; i < total_steps; ++i) {
+      timestamp += dt;
+      v[0].timestamp = timestamp;
+      v[0].state(0) += dx; // object moves slower than mahalanobisThresh
+      t.update(v, timestamp);
+    }
+    CHECK(t.tracks().size() == 1); // object is tracked as single track
+  }
+}
 
 TEST_CASE("Test tracker removes old tracks", "[tracker]")
 {
