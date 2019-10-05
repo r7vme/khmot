@@ -29,6 +29,11 @@ void Tracker::update(const vector<Observation>& obsArr, const double timestamp)
     return;
   }
 
+  // predict
+  for (auto& tr : tracks_) {
+    tr->KF.predict(timestamp);
+  }
+
   // compute costs matrix
   vector<vector<double>> costs(N, vector<double>(M, 0.0));
   for (int i = 0; i < N; ++i) {
@@ -66,11 +71,6 @@ void Tracker::update(const vector<Observation>& obsArr, const double timestamp)
     if (isObsAssigned[j]) continue;
     tracks_.emplace_back(make_unique<Track>(newTrackID()));
     tracks_.back()->KF.correct(obsArr[j]);
-  }
-
-  // predict
-  for (auto& tr : tracks_) {
-    tr->KF.predict(timestamp);
   }
 
   GC(timestamp);  // garbage collection
