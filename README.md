@@ -4,10 +4,6 @@
 
 Multiple Object Tracker based on Hungarian algorithm (data association) and Kalman filter (motion estimation)
 
-# Status
-- Kalman filter - done.
-- Tracker - in progress.
-
 # Credits
 
 - [Hungarian Alghoritm implementation by Cong Ma](https://github.com/mcximing/hungarian-algorithm-cpp)
