@@ -8,11 +8,11 @@ using namespace khmot;
 
 TEST_CASE("Test constant velocity movement along X", "[kalman]")
 {
-  constexpr int total_steps = 100;
-  constexpr int corr_steps = 50;
-  constexpr double dx = 1.0;
-  constexpr double deviation = 1.0;
-  constexpr double total_dist = total_steps * dx;
+  const int total_steps = 100;
+  const int corr_steps = 50;
+  const double dx = 1.0;
+  const double deviation = 1.0;
+  const double total_dist = total_steps * dx;
 
   Kalman k;
   Observation obs;
@@ -42,10 +42,10 @@ TEST_CASE("Test constant velocity movement along X", "[kalman]")
 
 TEST_CASE("Test non-omnidirectional case movement along Y", "[kalman]")
 {
-  constexpr int total_steps = 100;
-  constexpr int corr_steps = 50;
-  constexpr double dy = 1.0;
-  constexpr double deviation = 1.0;
+  const int total_steps = 100;
+  const int corr_steps = 50;
+  const double dy = 1.0;
+  const double deviation = 1.0;
   bool isOmnidirectional = false;
 
   Kalman k(isOmnidirectional);

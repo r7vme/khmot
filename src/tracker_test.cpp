@@ -9,13 +9,13 @@ using namespace khmot;
 // test mahalanobis distance thresh
 TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
 {
-  constexpr double dx = 10.0;
-  constexpr double dt = 1.0;
-  constexpr double deviation = 1.0;
-  constexpr double total_steps = 100;
-  constexpr double timeout = total_steps * 2 * dt; // set timeout > total time
-  constexpr double smallMahalanobisThresh = 0.1;
-  constexpr double bigMahalanobisThresh = 100.0;
+  const double dx = 10.0;
+  const double dt = 1.0;
+  const double deviation = 1.0;
+  const double total_steps = 100;
+  const double timeout = total_steps * 2 * dt; // set timeout > total time
+  const double smallMahalanobisThresh = 0.1;
+  const double bigMahalanobisThresh = 100.0;
 
   Observation obs;
   obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
@@ -53,9 +53,9 @@ TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
 
 TEST_CASE("Test tracker removes old tracks", "[tracker]")
 {
-  constexpr double dt = 1.0;
-  constexpr double deviation = 1.0;
-  constexpr double total_steps = 100;
+  const double dt = 1.0;
+  const double deviation = 1.0;
+  const double total_steps = 100;
 
   Observation obs;
   obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
@@ -88,9 +88,9 @@ TEST_CASE("Test genTrackID function", "[tracker]")
 
 TEST_CASE("Test tracker keeps track of static object", "[tracker]")
 {
-  constexpr double dt = 1.0;
-  constexpr double deviation = 1.0;
-  constexpr double total_steps = 100;
+  const double dt = 1.0;
+  const double deviation = 1.0;
+  const double total_steps = 100;
 
   Observation obs;
   obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
