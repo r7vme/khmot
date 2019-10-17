@@ -9,7 +9,7 @@ using namespace std;
 
 namespace khmot {
 
-const double defaultTimeout = 10.0;
+const double defaultTrackTimeout = 10.0;
 const double defaultMahalanobisThresh = 3.0;
 
 using TrackID = unsigned int;
@@ -32,15 +32,24 @@ inline TrackID genTrackID(TrackID cur)
 
 class Tracker {
  public:
-  Tracker(double timeout = defaultTimeout,
+  Tracker(double trackTimeout = defaultTrackTimeout,
           double mahalanobisThresh = defaultMahalanobisThresh);
+  Tracker(const Tracker&) = delete;
+  Tracker& operator=(Tracker const&) = delete;
+
   void update(const vector<Observation>& obs, const double timestamp);
   const auto& tracks() const { return tracks_; };
 
+  // getters, setters
+  double getMahalanobisThresh() { return mahalanobisThresh_; };
+  double getTrackTimeout() { return trackTimeout_; };
+  void setMahalanobisThresh(double v) { mahalanobisThresh_ = v; };
+  void setTrackTimeout(double v) { trackTimeout_ = v; };
+
  private:
   TrackID curTrackID_;
-  const double mahalanobisThresh_;
-  const double trackTimeout_;
+  double mahalanobisThresh_;
+  double trackTimeout_;
   vector<unique_ptr<Track>> tracks_;
 
   void GC(const double timestamp);

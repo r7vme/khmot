@@ -110,3 +110,19 @@ TEST_CASE("Test tracker keeps track of static object", "[tracker]")
   CHECK(t.tracks().size() == 1);
   CHECK(t.tracks()[0]->trackID == 0);
 }
+
+TEST_CASE("Test tracker getters and setters", "[tracker]")
+{
+  double desiredVal = 10.0;
+  Tracker t;
+
+  // check mahalanobisThresh
+  CHECK(t.getMahalanobisThresh() == defaultMahalanobisThresh);
+  t.setMahalanobisThresh(desiredVal);
+  CHECK(t.getMahalanobisThresh() == desiredVal);
+
+  // check trackTimeout
+  CHECK(t.getTrackTimeout() == defaultTrackTimeout);
+  t.setTrackTimeout(desiredVal);
+  CHECK(t.getTrackTimeout() == desiredVal);
+}

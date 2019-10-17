@@ -3,11 +3,41 @@ project(khmot CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+### ROS ###
+# Use "cmake -DDISABLE_ROS=TRUE .." to disable ROS
+if(NOT DISABLE_ROS)
+  find_package(catkin REQUIRED COMPONENTS
+    message_generation
+    roscpp
+    std_msgs
+  )
+
+  add_message_files(
+    FILES
+    ObservationMsg.msg
+    ObservationsArrayMsg.msg
+    TrackMsg.msg
+    TracksArrayMsg.msg
+  )
+
+  generate_messages(
+    DEPENDENCIES
+    std_msgs
+  )
+
+  catkin_package(
+    CATKIN_DEPENDS
+      message_runtime
+      roscpp
+      std_msgs
+  )
+endif()
+### END ROS ###
+
 add_subdirectory(vendor/eigen)
 add_subdirectory(vendor/hungarian-algorithm-cpp)
 
 # testing
-set(DISABLE_TESTS FALSE)
 if(NOT DISABLE_TESTS)
   add_subdirectory(vendor/catch2)
   enable_testing()
@@ -36,3 +66,11 @@ endif()
 add_executable(main main.cpp)
 target_link_libraries(main eigen khmot)
 target_include_directories(main PRIVATE src)
+
+### ROS ###
+if(NOT DISABLE_ROS)
+  add_executable(khmot_ros src/ros_tracker.cpp src/ros_tracker_node.cpp)
+  target_link_libraries(khmot_ros eigen khmot ${catkin_LIBRARIES})
+  target_include_directories(khmot_ros PRIVATE src ${catkin_INCLUDE_DIRS})
+endif()
+### END ROS ###

@@ -4,6 +4,7 @@
 namespace khmot {
 
 const int STATE_SIZE = 6;
+const int OBSERVATION_SIZE = 3;
 const double OBSERVED = 1.0;
 
 // clang-format off
