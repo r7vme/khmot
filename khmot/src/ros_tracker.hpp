@@ -2,8 +2,8 @@
 
 #include "tracker.hpp"
 
-#include <khmot/ObservationsArrayMsg.h>
-#include <khmot/TracksArrayMsg.h>
+#include <khmot_msgs/ObservationsArray.h>
+#include <khmot_msgs/TracksArray.h>
 #include <ros/ros.h>
 
 namespace khmot {
@@ -21,7 +21,7 @@ class RosTracker {
   ros::Publisher tracksPub_;
 
   // Functions.
-  void obsCallback(const khmot::ObservationsArrayMsg& msg);
+  void obsCallback(const khmot_msgs::ObservationsArray& msg);
 
   Tracker tracker_;
 };

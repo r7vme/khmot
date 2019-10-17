@@ -16,10 +16,10 @@ RosTracker::RosTracker(ros::NodeHandle nh, ros::NodeHandle priv_nh) : tracker_()
   tracker_.setTrackTimeout(trackTimeout);
 
   obsSub_ = nh.subscribe("observations", 1, &RosTracker::obsCallback, this);
-  tracksPub_ = nh.advertise<khmot::TracksArrayMsg>("tracks", 1);
+  tracksPub_ = nh.advertise<khmot_msgs::TracksArray>("tracks", 1);
 }
 
-void RosTracker::obsCallback(const khmot::ObservationsArrayMsg& msg)
+void RosTracker::obsCallback(const khmot_msgs::ObservationsArray& msg)
 {
   vector<Observation> obsArr{};
   double timestamp = msg.header.stamp.toSec();
@@ -43,7 +43,7 @@ void RosTracker::obsCallback(const khmot::ObservationsArrayMsg& msg)
 
   tracker_.update(obsArr, timestamp);
 
-  TracksArrayMsg::Ptr tracksMsg(new TracksArrayMsg);
+  khmot_msgs::TracksArray::Ptr tracksMsg(new khmot_msgs::TracksArray);
 
   for (const auto& track : tracker_.tracks()) {
     tracksMsg->tracks.emplace_back();

@@ -7,29 +7,16 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # Use "cmake -DDISABLE_ROS=TRUE .." to disable ROS
 if(NOT DISABLE_ROS)
   find_package(catkin REQUIRED COMPONENTS
-    message_generation
     roscpp
     std_msgs
-  )
-
-  add_message_files(
-    FILES
-    ObservationMsg.msg
-    ObservationsArrayMsg.msg
-    TrackMsg.msg
-    TracksArrayMsg.msg
-  )
-
-  generate_messages(
-    DEPENDENCIES
-    std_msgs
+    khmot_msgs
   )
 
   catkin_package(
     CATKIN_DEPENDS
-      message_runtime
       roscpp
       std_msgs
+      khmot_msgs
   )
 endif()
 ### END ROS ###
