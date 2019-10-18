@@ -9,19 +9,12 @@ Kalman::Kalman(bool omnidirectional, const Eigen::MatrixXd& noiseCov)
       omnidirectional_(omnidirectional),
       lastPredTime_(0.),
       lastObsTime_(0.),
-      H_(STATE_SIZE, STATE_SIZE),
-      F_(STATE_SIZE, STATE_SIZE),
+      H_(defaultObsMatrix),
+      F_(Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE)),
       Q_(noiseCov),
       state_(STATE_SIZE),
       P_(STATE_SIZE, STATE_SIZE)
 {
-  H_.setZero();
-  H_(StateMemberX, StateMemberX) = OBSERVED;      // observe x
-  H_(StateMemberY, StateMemberY) = OBSERVED;      // observe y
-  H_(StateMemberYaw, StateMemberYaw) = OBSERVED;  // observe yaw
-
-  F_.setIdentity();
-
   reset();
 }
 

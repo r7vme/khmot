@@ -5,7 +5,6 @@ namespace khmot {
 
 const int STATE_SIZE = 6;
 const int OBSERVATION_SIZE = 3;
-const double OBSERVED = 1.0;
 
 // clang-format off
 const auto defaultNoiseCov =
@@ -15,6 +14,14 @@ const auto defaultNoiseCov =
                                                 0.0, 0.0, 0.0, 0.1, 0.0, 0.0,
                                                 0.0, 0.0, 0.0, 0.0, 0.1, 0.0,
                                                 0.0, 0.0, 0.0, 0.0, 0.0, .01)
+        .finished();
+const auto defaultObsMatrix = // observe x, y, yaw
+    (Eigen::MatrixXd(STATE_SIZE, STATE_SIZE) << 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                                0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+                                                0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+                                                0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                                0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                                0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         .finished();
 // clang-format on
 
