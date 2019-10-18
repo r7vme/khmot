@@ -3,10 +3,7 @@ int32 id
 float64 x
 float64 y
 float64 yaw
-float64 height
-float64 width
-float64 length
 float64 vx
 float64 vy
 float64 vyaw
-float64[81] covariance
+float64[36] covariance
