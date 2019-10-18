@@ -8,6 +8,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 if(NOT DISABLE_ROS)
   find_package(catkin REQUIRED COMPONENTS
     roscpp
+    jsk_recognition_msgs
     std_msgs
     khmot_msgs
   )
@@ -15,6 +16,7 @@ if(NOT DISABLE_ROS)
   catkin_package(
     CATKIN_DEPENDS
       roscpp
+      jsk_recognition_msgs
       std_msgs
       khmot_msgs
   )

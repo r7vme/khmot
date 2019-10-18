@@ -18,7 +18,7 @@ Kalman::Kalman(bool omnidirectional, const Eigen::MatrixXd& noiseCov)
   reset();
 }
 
-void Kalman::correct(const Observation& obs)
+void Kalman::correct(const KalmanObservation& obs)
 {
   if (!initialized_) {
     // Use first observation as ground truth.

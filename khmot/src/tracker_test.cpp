@@ -13,41 +13,45 @@ TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
   const double dt = 1.0;
   const double deviation = 1.0;
   const double total_steps = 100;
-  const double timeout = total_steps * 2 * dt; // set timeout > total time
+  const double timeout = total_steps * 2 * dt;  // set timeout > total time
+  const double dimsAlpha = 0.2;
   const double smallMahalanobisThresh = 0.1;
   const double bigMahalanobisThresh = 100.0;
 
   Observation obs;
-  obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
-  obs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
-                   (deviation * deviation);
-  obs.timestamp = 0.0;
+  obs.kalmanObs.state = Eigen::VectorXd::Zero(STATE_SIZE);
+  obs.kalmanObs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
+                             (deviation * deviation);
+  obs.kalmanObs.timestamp = 0.0;
   vector<Observation> v{obs};
 
   // test for small
   {
-    Tracker t(timeout, smallMahalanobisThresh);
+    Tracker t(dimsAlpha, timeout, smallMahalanobisThresh);
     double timestamp(0.0);
     for (int i = 0; i < total_steps; ++i) {
       timestamp += dt;
-      v[0].timestamp = timestamp;
-      v[0].state(0) += dx; // object moves faster than mahalanobisThresh
+      v[0].kalmanObs.timestamp = timestamp;
+      v[0].kalmanObs.state(0) +=
+          dx;  // object moves faster than mahalanobisThresh
       t.update(v, timestamp);
     }
-    CHECK(t.tracks().size() == 100); // for every observation new track was created
+    CHECK(t.tracks().size() ==
+          100);  // for every observation new track was created
   }
 
   // test for big
   {
-    Tracker t(timeout, bigMahalanobisThresh);
+    Tracker t(dimsAlpha, timeout, bigMahalanobisThresh);
     double timestamp(0.0);
     for (int i = 0; i < total_steps; ++i) {
       timestamp += dt;
-      v[0].timestamp = timestamp;
-      v[0].state(0) += dx; // object moves slower than mahalanobisThresh
+      v[0].kalmanObs.timestamp = timestamp;
+      v[0].kalmanObs.state(0) +=
+          dx;  // object moves slower than mahalanobisThresh
       t.update(v, timestamp);
     }
-    CHECK(t.tracks().size() == 1); // object is tracked as single track
+    CHECK(t.tracks().size() == 1);  // object is tracked as single track
   }
 }
 
@@ -58,10 +62,10 @@ TEST_CASE("Test tracker removes old tracks", "[tracker]")
   const double total_steps = 100;
 
   Observation obs;
-  obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
-  obs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
-                   (deviation * deviation);
-  obs.timestamp = 0.0;
+  obs.kalmanObs.state = Eigen::VectorXd::Zero(STATE_SIZE);
+  obs.kalmanObs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
+                             (deviation * deviation);
+  obs.kalmanObs.timestamp = 0.0;
   vector<Observation> v{obs};
 
   double timeout = (total_steps / 2) * dt;
@@ -93,17 +97,17 @@ TEST_CASE("Test tracker keeps track of static object", "[tracker]")
   const double total_steps = 100;
 
   Observation obs;
-  obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
-  obs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
-                   (deviation * deviation);
-  obs.timestamp = 0.0;
+  obs.kalmanObs.state = Eigen::VectorXd::Zero(STATE_SIZE);
+  obs.kalmanObs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
+                             (deviation * deviation);
+  obs.kalmanObs.timestamp = 0.0;
   vector<Observation> v{obs};
 
   Tracker t;
   double timestamp(0.0);
   for (int i = 0; i < total_steps; ++i) {
     timestamp += dt;
-    v[0].timestamp = timestamp;
+    v[0].kalmanObs.timestamp = timestamp;
     t.update(v, timestamp);
   }
 
@@ -125,4 +129,14 @@ TEST_CASE("Test tracker getters and setters", "[tracker]")
   CHECK(t.getTrackTimeout() == defaultTrackTimeout);
   t.setTrackTimeout(desiredVal);
   CHECK(t.getTrackTimeout() == desiredVal);
+}
+
+TEST_CASE("Test filterEMA", "[tracker]")
+{
+  double mean = 10.0;
+  double x = 11.0;
+  // test with different alpha
+  CHECK(filterEMA(x, mean, 0.2) == 10.2);
+  CHECK(filterEMA(x, mean, 0.0) == 10.0);
+  CHECK(filterEMA(x, mean, 1.0) == 11.0);
 }

@@ -15,7 +15,7 @@ TEST_CASE("Test constant velocity movement along X", "[kalman]")
   const double total_dist = total_steps * dx;
 
   Kalman k;
-  Observation obs;
+  KalmanObservation obs;
   obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
   obs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
                    (deviation * deviation);
@@ -49,7 +49,7 @@ TEST_CASE("Test non-omnidirectional case movement along Y", "[kalman]")
   bool isOmnidirectional = false;
 
   Kalman k(isOmnidirectional);
-  Observation obs;
+  KalmanObservation obs;
   obs.state = Eigen::VectorXd::Zero(STATE_SIZE);
   obs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
                    (deviation * deviation);

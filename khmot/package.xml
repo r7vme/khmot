@@ -8,6 +8,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>cmake_modules</build_depend>
   <depend>roscpp</depend>
+  <depend>jsk_recognition_msgs</depend>
   <depend>std_msgs</depend>
   <depend>khmot_msgs</depend>
 </package>

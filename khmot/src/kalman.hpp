@@ -37,7 +37,7 @@ enum StateMembers {
   StateMemberVyaw
 };
 
-struct Observation {
+struct KalmanObservation {
   State state;
   Covariance covariance;
   double timestamp;
@@ -50,7 +50,7 @@ class Kalman {
   const Covariance& covariance() const { return P_; };
   const State& state() const { return state_; };
 
-  void correct(const Observation& obs);
+  void correct(const KalmanObservation& obs);
   void predict(const double timestamp);
   double lastObsTime() const { return lastObsTime_; };
   void reset();
@@ -61,7 +61,7 @@ class Kalman {
                           // robots
   double lastPredTime_;
   double lastObsTime_;
-  Eigen::MatrixXd H_;  // Observation matrix
+  Eigen::MatrixXd H_;  //KalmanObservation matrix
   Eigen::MatrixXd F_;  // State transition matrix (system dynamics)
   Eigen::MatrixXd Q_;  // Process noise covariance matrix
   State state_;        // Estimated state vector
