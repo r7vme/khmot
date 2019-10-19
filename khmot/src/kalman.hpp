@@ -38,9 +38,9 @@ enum StateMembers {
 };
 
 struct KalmanObservation {
-  State state;
-  Covariance covariance;
-  double timestamp;
+  State state = Eigen::VectorXd::Zero(STATE_SIZE);
+  Covariance covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
+  double timestamp = 0.0;
 };
 
 class Kalman {
@@ -61,7 +61,7 @@ class Kalman {
                           // robots
   double lastPredTime_;
   double lastObsTime_;
-  Eigen::MatrixXd H_;  //KalmanObservation matrix
+  Eigen::MatrixXd H_;  // KalmanObservation matrix
   Eigen::MatrixXd F_;  // State transition matrix (system dynamics)
   Eigen::MatrixXd Q_;  // Process noise covariance matrix
   State state_;        // Estimated state vector
