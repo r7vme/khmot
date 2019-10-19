@@ -140,3 +140,40 @@ TEST_CASE("Test filterEMA", "[tracker]")
   CHECK(filterEMA(x, mean, 0.0) == 10.0);
   CHECK(filterEMA(x, mean, 1.0) == 11.0);
 }
+
+TEST_CASE("Test tracker filters height", "[tracker]")
+{
+  const double height = 5.0;
+  const double error = 2.0;
+  const double total_steps = 100;
+  const double timestamp = 0.0;
+
+  double desiredHeight = 0.0;
+  {
+    double x = height;
+    double mean = height;
+    for (int i = 0; i < total_steps; ++i) {
+      x += error;
+      mean = filterEMA(x, mean, defaultDimsAlpha);
+      x -= error;
+      mean = filterEMA(x, mean, defaultDimsAlpha);
+    }
+    desiredHeight = mean;
+  }
+
+  Observation obs;
+  obs.dims.h = height;
+  vector<Observation> v{obs};
+
+  Tracker t;
+  t.update(v, timestamp);
+  for (int i = 0; i < total_steps; ++i) {
+    v[0].dims.h += error;
+    t.update(v, timestamp);
+    v[0].dims.h -= error;
+    t.update(v, timestamp);
+  }
+  double actualHeight = t.tracks()[0]->dims.h;
+
+  CHECK(actualHeight == Approx(desiredHeight));
+}
