@@ -2,9 +2,16 @@
 
 #include "tracker.hpp"
 
-#include <khmot_msgs/ObservationsArray.h>
-#include <khmot_msgs/TracksArray.h>
+#include <jsk_recognition_msgs/BoundingBox.h>
+#include <jsk_recognition_msgs/BoundingBoxArray.h>
+#include <khmot_msgs/BoundingBoxWithCovarianceArray.h>
 #include <ros/ros.h>
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
+#include <string>
+
+using namespace std;
 
 namespace khmot {
 
@@ -17,13 +24,16 @@ class RosTracker {
   // ROS params.
 
   // ROS services.
-  ros::Subscriber obsSub_;
-  ros::Publisher tracksPub_;
+  ros::Subscriber observationsSub_;
+  ros::Publisher boxesPub_;
+  ros::Timer pubTimer_;
 
   // Functions.
-  void obsCallback(const khmot_msgs::ObservationsArray& msg);
+  void obsCallback(const khmot_msgs::BoundingBoxWithCovarianceArray& msg);
+  void publishTracks(const ros::TimerEvent&);
 
   Tracker tracker_;
+  string frameId_;
 };
 
 }  // namespace khmot

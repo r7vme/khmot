@@ -9,7 +9,7 @@ using namespace std;
 
 namespace khmot {
 
-const double defaultDimsAlpha = 0.1;
+const double defaultDimsFilterAlpha = 0.1;
 const double defaultTrackTimeout = 10.0;
 const double defaultMahalanobisThresh = 3.0;
 
@@ -51,7 +51,7 @@ inline double filterEMA(double x, double avg, double alpha)
 
 class Tracker {
  public:
-  Tracker(double dimsAlpha = defaultDimsAlpha,
+  Tracker(double dimsFilterAlpha = defaultDimsFilterAlpha,
           double trackTimeout = defaultTrackTimeout,
           double mahalanobisThresh = defaultMahalanobisThresh);
   Tracker(const Tracker&) = delete;             // delete copy ctor
@@ -61,14 +61,16 @@ class Tracker {
   const auto& tracks() const { return tracks_; };
 
   // getters, setters
-  double getMahalanobisThresh() { return mahalanobisThresh_; };
-  double getTrackTimeout() { return trackTimeout_; };
+  double getDimsFilterAlpha() const { return dimsFilterAlpha_; };
+  double getMahalanobisThresh() const { return mahalanobisThresh_; };
+  double getTrackTimeout() const { return trackTimeout_; };
+  void setDimsFilterAlpha(double v) { dimsFilterAlpha_ = v; };
   void setMahalanobisThresh(double v) { mahalanobisThresh_ = v; };
   void setTrackTimeout(double v) { trackTimeout_ = v; };
 
  private:
   TrackID curTrackID_;
-  double dimsAlpha_;  // alpha coeff used filterEMA
+  double dimsFilterAlpha_;  // alpha coeff used filterEMA
   double mahalanobisThresh_;
   double trackTimeout_;
   vector<unique_ptr<Track>> tracks_;

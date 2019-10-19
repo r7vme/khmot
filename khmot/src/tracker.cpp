@@ -10,9 +10,10 @@ using namespace std;
 
 namespace khmot {
 
-Tracker::Tracker(double dimsAlpha, double timeout, double mahalanobisThresh)
+Tracker::Tracker(double dimsFilterAlpha, double timeout,
+                 double mahalanobisThresh)
     : curTrackID_(maxTrackID),
-      dimsAlpha_(dimsAlpha),
+      dimsFilterAlpha_(dimsFilterAlpha),
       mahalanobisThresh_(mahalanobisThresh),
       trackTimeout_(timeout),
       tracks_(){};
@@ -71,11 +72,11 @@ void Tracker::update(const vector<Observation>& obsArr, const double timestamp)
 
     // correct dimentions (Exponential Moving Average)
     tracks_[i]->dims.h =
-        filterEMA(obsArr[obsID].dims.h, tracks_[i]->dims.h, dimsAlpha_);
+        filterEMA(obsArr[obsID].dims.h, tracks_[i]->dims.h, dimsFilterAlpha_);
     tracks_[i]->dims.w =
-        filterEMA(obsArr[obsID].dims.w, tracks_[i]->dims.w, dimsAlpha_);
+        filterEMA(obsArr[obsID].dims.w, tracks_[i]->dims.w, dimsFilterAlpha_);
     tracks_[i]->dims.l =
-        filterEMA(obsArr[obsID].dims.l, tracks_[i]->dims.l, dimsAlpha_);
+        filterEMA(obsArr[obsID].dims.l, tracks_[i]->dims.l, dimsFilterAlpha_);
   }
 
   // create new tracks

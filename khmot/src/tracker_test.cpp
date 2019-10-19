@@ -14,7 +14,7 @@ TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
   const double deviation = 1.0;
   const double total_steps = 100;
   const double timeout = total_steps * 2 * dt;  // set timeout > total time
-  const double dimsAlpha = 0.2;
+  const double dimsFilterAlpha = 0.2;
   const double smallMahalanobisThresh = 0.1;
   const double bigMahalanobisThresh = 100.0;
 
@@ -27,7 +27,7 @@ TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
 
   // test for small
   {
-    Tracker t(dimsAlpha, timeout, smallMahalanobisThresh);
+    Tracker t(dimsFilterAlpha, timeout, smallMahalanobisThresh);
     double timestamp(0.0);
     for (int i = 0; i < total_steps; ++i) {
       timestamp += dt;
@@ -42,7 +42,7 @@ TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
 
   // test for big
   {
-    Tracker t(dimsAlpha, timeout, bigMahalanobisThresh);
+    Tracker t(dimsFilterAlpha, timeout, bigMahalanobisThresh);
     double timestamp(0.0);
     for (int i = 0; i < total_steps; ++i) {
       timestamp += dt;
@@ -120,6 +120,11 @@ TEST_CASE("Test tracker getters and setters", "[tracker]")
   double desiredVal = 10.0;
   Tracker t;
 
+  // check dimsFilterAlpha
+  CHECK(t.getDimsFilterAlpha() == defaultDimsFilterAlpha);
+  t.setDimsFilterAlpha(desiredVal);
+  CHECK(t.getDimsFilterAlpha() == desiredVal);
+
   // check mahalanobisThresh
   CHECK(t.getMahalanobisThresh() == defaultMahalanobisThresh);
   t.setMahalanobisThresh(desiredVal);
@@ -154,9 +159,9 @@ TEST_CASE("Test tracker filters height", "[tracker]")
     double mean = height;
     for (int i = 0; i < total_steps; ++i) {
       x += error;
-      mean = filterEMA(x, mean, defaultDimsAlpha);
+      mean = filterEMA(x, mean, defaultDimsFilterAlpha);
       x -= error;
-      mean = filterEMA(x, mean, defaultDimsAlpha);
+      mean = filterEMA(x, mean, defaultDimsFilterAlpha);
     }
     desiredHeight = mean;
   }

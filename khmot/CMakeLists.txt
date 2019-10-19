@@ -7,17 +7,23 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # Use "cmake -DDISABLE_ROS=TRUE .." to disable ROS
 if(NOT DISABLE_ROS)
   find_package(catkin REQUIRED COMPONENTS
-    roscpp
     jsk_recognition_msgs
+    roscpp
     std_msgs
+    tf2
+    tf2_ros
+    tf2_geometry_msgs
     khmot_msgs
   )
 
   catkin_package(
     CATKIN_DEPENDS
-      roscpp
       jsk_recognition_msgs
+      roscpp
       std_msgs
+      tf2
+      tf2_ros
+      tf2_geometry_msgs
       khmot_msgs
   )
 endif()
