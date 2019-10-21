@@ -24,10 +24,11 @@ Uses omnidirectional constant velocity model for motion estimation. Optionally s
 For examples please consult `main.cpp` or `tracker_test.cpp`. In the future, this library probably will have ROS support.
 
 ```
+cd khmot
 mkdir build
 cd build
 cmake ..
-make
+make -DDISABLE_ROS=TRUE
 ./main
 ```
 
