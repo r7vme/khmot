@@ -4,7 +4,7 @@
 
 #include <limits>
 
-using namespace khmot;
+namespace khmot {
 
 // test mahalanobis distance thresh
 TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
@@ -23,7 +23,7 @@ TEST_CASE("Test tracker with small and big mahalanobis thresh", "[tracker]")
   obs.kalmanObs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
                              (deviation * deviation);
   obs.kalmanObs.timestamp = 0.0;
-  vector<Observation> v{obs};
+  std::vector<Observation> v{obs};
 
   // test for small
   {
@@ -66,7 +66,7 @@ TEST_CASE("Test tracker removes old tracks", "[tracker]")
   obs.kalmanObs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
                              (deviation * deviation);
   obs.kalmanObs.timestamp = 0.0;
-  vector<Observation> v{obs};
+  std::vector<Observation> v{obs};
 
   double timeout = (total_steps / 2) * dt;
   Tracker t(timeout);
@@ -80,7 +80,7 @@ TEST_CASE("Test tracker removes old tracks", "[tracker]")
     timestamp += dt;
     t.update(v, timestamp);
   }
-  CHECK(t.tracks().size() == 0);
+  CHECK(t.tracks().empty());
 }
 
 TEST_CASE("Test genTrackID function", "[tracker]")
@@ -101,7 +101,7 @@ TEST_CASE("Test tracker keeps track of static object", "[tracker]")
   obs.kalmanObs.covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) *
                              (deviation * deviation);
   obs.kalmanObs.timestamp = 0.0;
-  vector<Observation> v{obs};
+  std::vector<Observation> v{obs};
 
   Tracker t;
   double timestamp(0.0);
@@ -168,7 +168,7 @@ TEST_CASE("Test tracker filters height", "[tracker]")
 
   Observation obs;
   obs.dims.h = height;
-  vector<Observation> v{obs};
+  std::vector<Observation> v{obs};
 
   Tracker t;
   t.update(v, timestamp);
@@ -182,3 +182,5 @@ TEST_CASE("Test tracker filters height", "[tracker]")
 
   CHECK(actualHeight == Approx(desiredHeight));
 }
+
+}  // namespace khmot

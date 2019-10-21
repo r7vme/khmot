@@ -4,7 +4,7 @@
 
 #include "catch.hpp"
 
-using namespace khmot;
+namespace khmot {
 
 TEST_CASE("Test constant velocity movement along X", "[kalman]")
 {
@@ -25,7 +25,9 @@ TEST_CASE("Test constant velocity movement along X", "[kalman]")
   for (int i = 0; i < total_steps; ++i) {
     obs.state(StateMemberX) += dx;
     k.predict(static_cast<double>(i));
-    if (i < corr_steps) k.correct(obs);  // do not correct after some time
+    if (i < corr_steps) {
+      k.correct(obs);  // do not correct after some time
+    }
   }
 
   // check state is expected
@@ -59,7 +61,9 @@ TEST_CASE("Test non-omnidirectional case movement along Y", "[kalman]")
   for (int i = 0; i < total_steps; ++i) {
     obs.state(StateMemberY) += dy;
     k.predict(static_cast<double>(i));
-    if (i < corr_steps) k.correct(obs);  // do not correct after some time
+    if (i < corr_steps) {
+      k.correct(obs);  // do not correct after some time
+    }
   }
 
   // check that last position is last same as in last correction
@@ -67,3 +71,5 @@ TEST_CASE("Test non-omnidirectional case movement along Y", "[kalman]")
   // check that velocity Y is zero
   CHECK(k.state()(StateMemberVy) == Approx(0.0));
 }
+
+}  // namespace khmot

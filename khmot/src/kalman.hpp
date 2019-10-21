@@ -46,7 +46,7 @@ struct KalmanObservation {
 class Kalman {
  public:
   Kalman(bool omnidirectional = true,
-         const Eigen::MatrixXd& noiseCov = defaultNoiseCov);
+         Eigen::MatrixXd noiseCov = defaultNoiseCov);
   const Covariance& covariance() const { return P_; };
   const State& state() const { return state_; };
 

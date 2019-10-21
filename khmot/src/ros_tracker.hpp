@@ -12,24 +12,25 @@
 
 #include <string>
 
-using namespace std;
-
 namespace khmot {
 
 bool lookupTransformSafe(const tf2_ros::Buffer &buffer,
-                         const string &sourceFrame, const string &targetFrame,
-                         const ros::Time &time, const ros::Duration &timeout,
+                         const std::string &targetFrame,
+                         const std::string &sourceFrame, const ros::Time &time,
+                         const ros::Duration &timeout,
                          tf2::Transform &targetFrameTrans);
 
 // Subscribes to bboxes and publishes
 class RosTracker {
  public:
-  explicit RosTracker(ros::NodeHandle nh, ros::NodeHandle priv_nh);
+  RosTracker();
 
  private:
   // ROS params.
 
   // ROS services.
+  ros::NodeHandle nh_;
+  ros::NodeHandle priv_nh_;
   ros::Subscriber observationsSub_;
   ros::Publisher boxesPub_;
   ros::Timer pubTimer_;
@@ -38,7 +39,7 @@ class RosTracker {
   void obsCallback(const khmot_msgs::BoundingBoxWithCovarianceArray &msg);
   void publishTracks(const ros::TimerEvent &);
 
-  string staticFrameId_;
+  std::string staticFrameId_;
   Tracker tracker_;
   tf2_ros::Buffer tfBuffer_;
   tf2_ros::TransformListener tfListener_;

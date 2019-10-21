@@ -4,11 +4,11 @@
 
 namespace khmot {
 
-RosTracker::RosTracker(ros::NodeHandle nh, ros::NodeHandle priv_nh)
-    : staticFrameId_(""),
+RosTracker::RosTracker()
+    : priv_nh_("~"),
+      staticFrameId_(""),
       tfListener_(tfBuffer_),
-      tfTimeout_(ros::Duration(0)),
-      tracker_()
+      tfTimeout_(ros::Duration(0))
 {
   int publishFreq(0);
   double dimsFilterAlpha(0.0);
@@ -16,28 +16,29 @@ RosTracker::RosTracker(ros::NodeHandle nh, ros::NodeHandle priv_nh)
   double trackTimeout(0.0);
 
   // Set to odom if available
-  priv_nh.param<string>("static_frame_id", staticFrameId_, "map");
-  priv_nh.param<int>("publish_freq", publishFreq, 10);
-  priv_nh.param<double>("dims_filter_alpha", dimsFilterAlpha, 0.1);
-  priv_nh.param<double>("mahalanobis_thresh", mahalanobisThresh, 3.0);
-  priv_nh.param<double>("track_timeout", trackTimeout, 5.0);
+  priv_nh_.param<std::string>("static_frame_id", staticFrameId_, "map");
+  priv_nh_.param<int>("publish_freq", publishFreq, 10);
+  priv_nh_.param<double>("dims_filter_alpha", dimsFilterAlpha, 0.1);
+  priv_nh_.param<double>("mahalanobis_thresh", mahalanobisThresh, 3.0);
+  priv_nh_.param<double>("track_timeout", trackTimeout, 5.0);
 
   tracker_.setDimsFilterAlpha(dimsFilterAlpha);
   tracker_.setMahalanobisThresh(mahalanobisThresh);
   tracker_.setTrackTimeout(trackTimeout);
 
   observationsSub_ =
-      nh.subscribe("observations", 1, &RosTracker::obsCallback, this);
-  boxesPub_ = nh.advertise<jsk_recognition_msgs::BoundingBoxArray>("tracks", 1);
-  pubTimer_ = nh.createTimer(ros::Duration(1.0 / publishFreq),
-                             &RosTracker::publishTracks, this);
+      nh_.subscribe("observations", 1, &RosTracker::obsCallback, this);
+  boxesPub_ =
+      nh_.advertise<jsk_recognition_msgs::BoundingBoxArray>("tracks", 1);
+  pubTimer_ = nh_.createTimer(ros::Duration(1.0 / publishFreq),
+                              &RosTracker::publishTracks, this);
 }
 
 void RosTracker::obsCallback(
     const khmot_msgs::BoundingBoxWithCovarianceArray &msg)
 {
-  vector<Observation> obsArr{};
-  string frameId = msg.header.frame_id;
+  std::vector<Observation> obsArr{};
+  std::string frameId = msg.header.frame_id;
   auto timestampROS = msg.header.stamp;
   double timestamp = timestampROS.toSec();
 
@@ -54,7 +55,7 @@ void RosTracker::obsCallback(
     tf2::Vector3 pose;
     tf2::fromMsg(msg.boxes[n].pose.pose.orientation, quat);
     tf2::fromMsg(msg.boxes[n].pose.pose.position, pose);
-    pose[2] = 0.0;  // XXX: set Z to 0. We are operating in 2D.
+    pose.setZ(0.0);  // XXX: set Z to 0. We are operating in 2D.
     tf2::Transform objInSensorTF(quat, pose);
 
     tf2::Transform objInStaticTF;
@@ -67,8 +68,10 @@ void RosTracker::obsCallback(
     obsArr.back().dims.l = msg.boxes[n].dimensions.z;
 
     obsArr.back().kalmanObs.timestamp = timestamp;
-    obsArr.back().kalmanObs.state(StateMemberX) = objInStaticTF.getOrigin()[0];
-    obsArr.back().kalmanObs.state(StateMemberY) = objInStaticTF.getOrigin()[1];
+    obsArr.back().kalmanObs.state(StateMemberX) =
+        objInStaticTF.getOrigin().getX();
+    obsArr.back().kalmanObs.state(StateMemberY) =
+        objInStaticTF.getOrigin().getY();
     obsArr.back().kalmanObs.state(StateMemberYaw) =
         tf2::getYaw(objInStaticTF.getRotation());
     for (int i = 0; i < OBSERVATION_SIZE; ++i) {
@@ -82,7 +85,8 @@ void RosTracker::obsCallback(
   tracker_.update(obsArr, timestamp);
 }
 
-void RosTracker::publishTracks(const ros::TimerEvent &)
+void RosTracker::publishTracks(
+    const ros::TimerEvent &)  // NOLINT(readability-named-parameter)
 {
   ros::Time timeNow = ros::Time::now();
 
@@ -104,10 +108,10 @@ void RosTracker::publishTracks(const ros::TimerEvent &)
     bboxMsg.dimensions.z = track->dims.h;
     tf2::Quaternion q;
     q.setRPY(0, 0, track->KF.state()(StateMemberYaw));
-    bboxMsg.pose.orientation.x = q[0];
-    bboxMsg.pose.orientation.y = q[1];
-    bboxMsg.pose.orientation.z = q[2];
-    bboxMsg.pose.orientation.w = q[3];
+    bboxMsg.pose.orientation.x = q.getAxis().getX();
+    bboxMsg.pose.orientation.y = q.getAxis().getY();
+    bboxMsg.pose.orientation.z = q.getAxis().getZ();
+    bboxMsg.pose.orientation.w = q.getW();
     bboxMsg.pose.position.x = track->KF.state()(StateMemberX);
     bboxMsg.pose.position.y = track->KF.state()(StateMemberY);
     bboxMsg.pose.position.z = track->dims.h / 2;  // XXX: bottom on the ground
@@ -123,8 +127,9 @@ void RosTracker::publishTracks(const ros::TimerEvent &)
 // Function mostly borrowed from robot_localization (BSD)
 // https://github.com/cra-ros-pkg/robot_localization/blob/3bd285e6fc400447086490e833a6f0181284b4d8/LICENSE
 bool lookupTransformSafe(const tf2_ros::Buffer &buffer,
-                         const string &targetFrame, const string &sourceFrame,
-                         const ros::Time &time, const ros::Duration &timeout,
+                         const std::string &targetFrame,
+                         const std::string &sourceFrame, const ros::Time &time,
+                         const ros::Duration &timeout,
                          tf2::Transform &targetFrameTrans)
 {
   bool retVal = true;
@@ -145,12 +150,14 @@ bool lookupTransformSafe(const tf2_ros::Buffer &buffer,
               .transform,
           targetFrameTrans);
 
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
       ROS_WARN_STREAM_THROTTLE(
           2.0, "Transform from " << sourceFrame << " to " << targetFrame
                                  << " was unavailable for the time "
                                     "requested. Using latest instead.\n");
     }
     catch (tf2::TransformException &ex) {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
       ROS_WARN_STREAM_THROTTLE(2.0, "Could not obtain transform from "
                                         << sourceFrame << " to " << targetFrame
                                         << ". Error was " << ex.what() << "\n");

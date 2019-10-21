@@ -2,8 +2,8 @@
 
 #include <Eigen/Dense>
 
-using namespace std;
-using namespace khmot;
+using khmot::Observation;
+using khmot::Tracker;
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
   obs.kalmanObs.state << 0.1, 0.2, 0.3, 0.0, 0.0, 0.0;
   obs.kalmanObs.covariance = Eigen::MatrixXd::Identity(6, 6);
   obs.kalmanObs.timestamp = 0.0;
-  vector<Observation> v;
+  std::vector<Observation> v;
   v.push_back(obs);
 
   Tracker t;

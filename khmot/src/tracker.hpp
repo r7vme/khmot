@@ -5,8 +5,6 @@
 #include <memory>
 #include <vector>
 
-using namespace std;
-
 namespace khmot {
 
 const double defaultDimsFilterAlpha = 0.1;
@@ -14,7 +12,7 @@ const double defaultTrackTimeout = 10.0;
 const double defaultMahalanobisThresh = 3.0;
 
 using TrackID = unsigned int;
-constexpr TrackID maxTrackID = numeric_limits<TrackID>::max();
+constexpr TrackID maxTrackID = std::numeric_limits<TrackID>::max();
 
 struct Dims {
   double h = 0;
@@ -57,7 +55,7 @@ class Tracker {
   Tracker(const Tracker&) = delete;             // delete copy ctor
   Tracker& operator=(Tracker const&) = delete;  // delete assign ctor
 
-  void update(const vector<Observation>& obs, const double timestamp);
+  void update(const std::vector<Observation>& obsArr, const double timestamp);
   const auto& tracks() const { return tracks_; };
 
   // getters, setters
@@ -73,7 +71,7 @@ class Tracker {
   double dimsFilterAlpha_;  // alpha coeff used filterEMA
   double mahalanobisThresh_;
   double trackTimeout_;
-  vector<unique_ptr<Track>> tracks_;
+  std::vector<std::unique_ptr<Track>> tracks_;
 
   void GC(const double timestamp);
   inline TrackID newTrackID() { return curTrackID_ = genTrackID(curTrackID_); }

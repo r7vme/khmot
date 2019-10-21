@@ -2,30 +2,27 @@
 
 #include "Hungarian.h"
 
-#include <math.h>
-
+#include <cmath>
 #include <memory>
-
-using namespace std;
 
 namespace khmot {
 
-Tracker::Tracker(double dimsFilterAlpha, double timeout,
+Tracker::Tracker(double dimsFilterAlpha, double trackTimeout,
                  double mahalanobisThresh)
     : curTrackID_(maxTrackID),
       dimsFilterAlpha_(dimsFilterAlpha),
       mahalanobisThresh_(mahalanobisThresh),
-      trackTimeout_(timeout),
-      tracks_(){};
+      trackTimeout_(trackTimeout){};
 
-void Tracker::update(const vector<Observation>& obsArr, const double timestamp)
+void Tracker::update(const std::vector<Observation>& obsArr,
+                     const double timestamp)
 {
   int N = tracks_.size();
   int M = obsArr.size();
 
   if (N == 0) {
     for (const auto& obs : obsArr) {
-      tracks_.emplace_back(make_unique<Track>(newTrackID()));
+      tracks_.emplace_back(std::make_unique<Track>(newTrackID()));
       tracks_.back()->KF.correct(obs.kalmanObs);
       tracks_.back()->dims = obs.dims;
     }
@@ -38,7 +35,7 @@ void Tracker::update(const vector<Observation>& obsArr, const double timestamp)
   }
 
   // compute costs matrix
-  vector<vector<double>> costs(N, vector<double>(M, 0.0));
+  std::vector<std::vector<double>> costs(N, std::vector<double>(M, 0.0));
   for (int i = 0; i < N; ++i) {
     for (int j = 0; j < M; ++j) {
       // compute Mahalanobis distance based on X, Y, Yaw.
@@ -54,16 +51,20 @@ void Tracker::update(const vector<Observation>& obsArr, const double timestamp)
 
   // find best possible assignements with Hungarian alghoritm
   HungarianAlgorithm H;
-  vector<int> assignment;
-  vector<bool> isObsAssigned(M, false);
+  std::vector<int> assignment;
+  std::vector<bool> isObsAssigned(M, false);
   H.Solve(costs, assignment);
   // correct Kalman filter with assigned observations
   for (int i = 0; i < N; ++i) {
     int obsID = assignment[i];
 
-    if (obsID == -1) continue;  // skip if no assignement
+    if (obsID == -1) {
+      continue;  // skip if no assignement
+    }
 
-    if (costs[i][obsID] > mahalanobisThresh_) continue;  // skip if above thresh
+    if (costs[i][obsID] > mahalanobisThresh_) {
+      continue;  // skip if above thresh
+    }
 
     isObsAssigned[obsID] = true;
 
@@ -81,7 +82,9 @@ void Tracker::update(const vector<Observation>& obsArr, const double timestamp)
 
   // create new tracks
   for (int j = 0; j < M; ++j) {
-    if (isObsAssigned[j]) continue;
+    if (isObsAssigned[j]) {
+      continue;
+    }
     tracks_.emplace_back(make_unique<Track>(newTrackID()));
     tracks_.back()->KF.correct(obsArr[j].kalmanObs);
     tracks_.back()->dims = obsArr[j].dims;

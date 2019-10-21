@@ -4,14 +4,14 @@
 
 namespace khmot {
 
-Kalman::Kalman(bool omnidirectional, const Eigen::MatrixXd& noiseCov)
+Kalman::Kalman(bool omnidirectional, Eigen::MatrixXd noiseCov)
     : initialized_(false),
       omnidirectional_(omnidirectional),
       lastPredTime_(0.),
       lastObsTime_(0.),
       H_(defaultObsMatrix),
       F_(Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE)),
-      Q_(noiseCov),
+      Q_(std::move(noiseCov)),
       state_(STATE_SIZE),
       P_(STATE_SIZE, STATE_SIZE)
 {
