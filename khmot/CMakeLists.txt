@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.10)
 project(khmot CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -45,6 +45,7 @@ add_library(khmot STATIC
   src/kalman.hpp
   src/kalman.cpp
 )
+set_target_properties(khmot PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 target_link_libraries(khmot eigen hungarian)
 target_compile_options(khmot PRIVATE -Werror -Wall -Wextra)
 
@@ -53,18 +54,21 @@ if(NOT DISABLE_TESTS)
     src/kalman_test.cpp
     src/tracker_test.cpp
   )
+  set_target_properties(test_khmot PROPERTIES CXX_CLANG_TIDY "clang-tidy")
   target_link_libraries(test_khmot catch2 khmot)
   target_compile_options(test_khmot PRIVATE -Werror -Wall -Wextra)
   catch_discover_tests(test_khmot)
 endif()
 
 add_executable(main main.cpp)
+set_target_properties(main PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 target_link_libraries(main eigen khmot)
 target_include_directories(main PRIVATE src)
 
 ### ROS ###
 if(NOT DISABLE_ROS)
   add_executable(khmot_ros src/ros_tracker.cpp src/ros_tracker_node.cpp)
+  set_target_properties(khmot_ros PROPERTIES CXX_CLANG_TIDY "clang-tidy")
   target_link_libraries(khmot_ros eigen khmot ${catkin_LIBRARIES})
   target_include_directories(khmot_ros PRIVATE src ${catkin_INCLUDE_DIRS})
 endif()
