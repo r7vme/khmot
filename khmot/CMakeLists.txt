@@ -54,14 +54,12 @@ if(NOT DISABLE_TESTS)
     src/kalman_test.cpp
     src/tracker_test.cpp
   )
-  set_target_properties(test_khmot PROPERTIES CXX_CLANG_TIDY "clang-tidy")
   target_link_libraries(test_khmot catch2 khmot)
   target_compile_options(test_khmot PRIVATE -Werror -Wall -Wextra)
   catch_discover_tests(test_khmot)
 endif()
 
 add_executable(main main.cpp)
-set_target_properties(main PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 target_link_libraries(main eigen khmot)
 target_include_directories(main PRIVATE src)
 
