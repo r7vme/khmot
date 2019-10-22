@@ -63,9 +63,9 @@ void RosTracker::obsCallback(
 
     // fill Observation object
     obsArr.emplace_back();
-    obsArr.back().dims.h = msg.boxes[n].dimensions.x;
+    obsArr.back().dims.l = msg.boxes[n].dimensions.x;
     obsArr.back().dims.w = msg.boxes[n].dimensions.y;
-    obsArr.back().dims.l = msg.boxes[n].dimensions.z;
+    obsArr.back().dims.h = msg.boxes[n].dimensions.z;
 
     obsArr.back().kalmanObs.timestamp = timestamp;
     obsArr.back().kalmanObs.state(StateMemberX) =
@@ -116,7 +116,7 @@ void RosTracker::publishTracks(
     bboxMsg.pose.position.x = track->KF.state()(StateMemberX);
     bboxMsg.pose.position.y = track->KF.state()(StateMemberY);
     bboxMsg.pose.position.z = track->dims.h / 2;  // XXX: bottom on the ground
-    bboxMsg.value = 0;
+    bboxMsg.value = track->trackID;
     bboxArrMsg.boxes.push_back(bboxMsg);
   }
 
