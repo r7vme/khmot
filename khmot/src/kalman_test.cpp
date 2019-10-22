@@ -3,6 +3,7 @@
 #include "kalman.hpp"
 
 #include "catch.hpp"
+#include <cmath>
 
 namespace khmot {
 
@@ -13,6 +14,7 @@ TEST_CASE("Test constant velocity movement along X", "[kalman]")
   const double dx = 1.0;
   const double deviation = 1.0;
   const double total_dist = total_steps * dx;
+  const double big_covariance = 5000.0;
 
   Kalman k;
   KalmanObservation obs;
@@ -39,7 +41,7 @@ TEST_CASE("Test constant velocity movement along X", "[kalman]")
   CHECK(k.state()(StateMemberVyaw) == Approx(0.0));
 
   // check covariance for X blowed up
-  CHECK(k.covariance()(StateMemberX, StateMemberX) > 5000.0);
+  CHECK(k.covariance()(StateMemberX, StateMemberX) > big_covariance);
 }
 
 TEST_CASE("Test non-omnidirectional case movement along Y", "[kalman]")
@@ -70,6 +72,20 @@ TEST_CASE("Test non-omnidirectional case movement along Y", "[kalman]")
   CHECK(k.state()(StateMemberY) == Approx(corr_steps - 1));
   // check that velocity Y is zero
   CHECK(k.state()(StateMemberVy) == Approx(0.0));
+}
+
+TEST_CASE("Test bad input with zero covariance", "[kalman]")
+{
+  Kalman k;
+  KalmanObservation obs;
+  // set covariance to zero
+  obs.covariance = Eigen::MatrixXd::Zero(STATE_SIZE, STATE_SIZE);
+
+  k.correct(obs);
+  k.correct(obs);
+
+  // check that is normal number (not NaN)
+  CHECK(std::isfinite(k.state()(StateMemberX)));
 }
 
 }  // namespace khmot

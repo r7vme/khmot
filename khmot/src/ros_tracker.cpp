@@ -74,12 +74,13 @@ void RosTracker::obsCallback(
         objInStaticTF.getOrigin().getY();
     obsArr.back().kalmanObs.state(StateMemberYaw) =
         tf2::getYaw(objInStaticTF.getRotation());
-    for (int i = 0; i < OBSERVATION_SIZE; ++i) {
-      for (int j = 0; j < OBSERVATION_SIZE; ++j) {
-        obsArr.back().kalmanObs.covariance(i, j) =
-            msg.boxes[n].pose.covariance[OBSERVATION_SIZE * i + j];
-      }
-    }
+    // NOTE: non-diagonal covariance is skipped
+    obsArr.back().kalmanObs.covariance(StateMemberX, StateMemberX) =
+        msg.boxes[n].pose.covariance[0];
+    obsArr.back().kalmanObs.covariance(StateMemberY, StateMemberY) =
+        msg.boxes[n].pose.covariance[7];
+    obsArr.back().kalmanObs.covariance(StateMemberYaw, StateMemberYaw) =
+        msg.boxes[n].pose.covariance[35];
   }
 
   tracker_.update(obsArr, timestamp);

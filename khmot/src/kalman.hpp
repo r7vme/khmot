@@ -1,10 +1,12 @@
 #pragma once
 #include <Eigen/Dense>
+#include <cmath>
 
 namespace khmot {
 
 const int STATE_SIZE = 6;
 const int OBSERVATION_SIZE = 3;
+const double EPSILON = 1e-9;
 
 // clang-format off
 const auto defaultNoiseCov =
@@ -39,7 +41,8 @@ enum StateMembers {
 
 struct KalmanObservation {
   State state = Eigen::VectorXd::Zero(STATE_SIZE);
-  Covariance covariance = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
+  Covariance covariance =
+      Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) * EPSILON;
   double timestamp = 0.0;
 };
 
@@ -50,7 +53,7 @@ class Kalman {
   const Covariance& covariance() const { return P_; };
   const State& state() const { return state_; };
 
-  void correct(const KalmanObservation& obs);
+  void correct(KalmanObservation obs);
   void predict(const double timestamp);
   double lastObsTime() const { return lastObsTime_; };
   void reset();
@@ -67,5 +70,7 @@ class Kalman {
   State state_;        // Estimated state vector
   Covariance P_;       // Estimated error covariance matrix
 };
+
+void preprocessObs(KalmanObservation& obs);
 
 }  // namespace khmot

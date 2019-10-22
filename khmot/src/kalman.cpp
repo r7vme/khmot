@@ -1,7 +1,5 @@
 #include "kalman.hpp"
 
-#include <Eigen/Dense>
-
 namespace khmot {
 
 Kalman::Kalman(bool omnidirectional, Eigen::MatrixXd noiseCov)
@@ -18,8 +16,10 @@ Kalman::Kalman(bool omnidirectional, Eigen::MatrixXd noiseCov)
   reset();
 }
 
-void Kalman::correct(const KalmanObservation& obs)
+void Kalman::correct(KalmanObservation obs)
 {
+  preprocessObs(obs);
+
   if (!initialized_) {
     // Use first observation as ground truth.
     state_ = obs.state;
@@ -55,6 +55,9 @@ void Kalman::predict(const double timestamp)
   // Update transition matrix (motion model) with time delta.
   double yaw = state_(StateMemberYaw);
   double dt = timestamp - lastPredTime_;
+  if (dt < 0) {
+    return;
+  }
   F_(StateMemberX, StateMemberVx) = (omnidirectional_) ? dt : ::cos(yaw) * dt;
   F_(StateMemberY, StateMemberVy) = (omnidirectional_) ? dt : ::sin(yaw) * dt;
   F_(StateMemberYaw, StateMemberVyaw) = dt;
@@ -71,6 +74,23 @@ void Kalman::reset()
   state_.setZero();
   P_.setZero();
   initialized_ = false;
+}
+
+void preprocessObs(KalmanObservation& obs)
+{
+  /*
+   * Replace negative covariance with asbolute value
+   * and zeros with really small value to preserve
+   * numerical stability.
+   */
+  for (int i = 0; i < STATE_SIZE; ++i) {
+    if (obs.covariance(i, i) < 0) {
+      obs.covariance(i, i) = std::fabs(obs.covariance(i, i));
+    }
+    if (obs.covariance(i, i) < EPSILON) {
+      obs.covariance(i, i) = EPSILON;
+    }
+  }
 }
 
 }  // namespace khmot

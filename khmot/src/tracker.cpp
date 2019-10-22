@@ -1,10 +1,5 @@
 #include "tracker.hpp"
 
-#include "Hungarian.h"
-
-#include <cmath>
-#include <memory>
-
 namespace khmot {
 
 Tracker::Tracker(double dimsFilterAlpha, double trackTimeout,
