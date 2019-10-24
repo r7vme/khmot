@@ -104,15 +104,16 @@ void RosTracker::publishTracks(
   bboxMsg.header.stamp = timeNow;
   bboxMsg.header.frame_id = staticFrameId_;
   for (const auto &track : tracker_.tracks()) {
+    if (!track->valid)
+    {
+      continue;
+    }
     bboxMsg.dimensions.x = track->dims.l;
     bboxMsg.dimensions.y = track->dims.w;
     bboxMsg.dimensions.z = track->dims.h;
     tf2::Quaternion q;
     q.setRPY(0, 0, track->KF.state()(StateMemberYaw));
-    bboxMsg.pose.orientation.x = q.getAxis().getX();
-    bboxMsg.pose.orientation.y = q.getAxis().getY();
-    bboxMsg.pose.orientation.z = q.getAxis().getZ();
-    bboxMsg.pose.orientation.w = q.getW();
+    bboxMsg.pose.orientation = tf2::toMsg(q);
     bboxMsg.pose.position.x = track->KF.state()(StateMemberX);
     bboxMsg.pose.position.y = track->KF.state()(StateMemberY);
     bboxMsg.pose.position.z = track->dims.h / 2;  // XXX: bottom on the ground

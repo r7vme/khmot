@@ -20,6 +20,8 @@ void Tracker::update(const std::vector<Observation>& obsArr,
       tracks_.emplace_back(std::make_unique<Track>(newTrackID()));
       tracks_.back()->KF.correct(obs.kalmanObs);
       tracks_.back()->dims = obs.dims;
+      KH_DEBUG("Created a new potential track with ID "
+               << tracks_.back()->trackID << ".");
     }
     return;
   }
@@ -36,11 +38,13 @@ void Tracker::update(const std::vector<Observation>& obsArr,
       // compute Mahalanobis distance based on X, Y, Yaw.
       Eigen::MatrixXd covXYYaw = tracks_[i]->KF.covariance().block(0, 0, 3, 3);
       Eigen::VectorXd innovation(3);
-      innovation << obsArr[j].kalmanObs.state[0] - tracks_[i]->KF.state()[0],
-          obsArr[j].kalmanObs.state[1] - tracks_[i]->KF.state()[1],
-          obsArr[j].kalmanObs.state[2] - tracks_[i]->KF.state()[2];
-      costs[i][j] =
-          sqrt(innovation.transpose() * (covXYYaw.inverse() * innovation));
+      // clang-format off
+      innovation << obsArr[j].kalmanObs.state[StateMemberX] - tracks_[i]->KF.state()[StateMemberX],
+                    obsArr[j].kalmanObs.state[StateMemberY] - tracks_[i]->KF.state()[StateMemberY],
+                    obsArr[j].kalmanObs.state[StateMemberYaw] - tracks_[i]->KF.state()[StateMemberYaw];
+      innovation(StateMemberYaw) = clampRotation(innovation(StateMemberYaw));
+      costs[i][j] = sqrt(innovation.transpose() * (covXYYaw.inverse() * innovation));
+      // clang-format on
     }
   }
 
@@ -58,7 +62,10 @@ void Tracker::update(const std::vector<Observation>& obsArr,
     }
 
     if (costs[i][obsID] > mahalanobisThresh_) {
-      continue;  // skip if above thresh
+      KH_DEBUG("Mahalanobis distance " << costs[i][obsID] << " is above thresh "
+                                       << mahalanobisThresh_
+                                       << ", skipping correction.");
+      continue;  // skip if above thresh (aka validation gates)
     }
 
     isObsAssigned[obsID] = true;
@@ -67,12 +74,20 @@ void Tracker::update(const std::vector<Observation>& obsArr,
     tracks_[i]->KF.correct(obsArr[obsID].kalmanObs);
 
     // correct dimentions (Exponential Moving Average)
-    tracks_[i]->dims.h =
-        filterEMA(obsArr[obsID].dims.h, tracks_[i]->dims.h, dimsFilterAlpha_);
-    tracks_[i]->dims.w =
-        filterEMA(obsArr[obsID].dims.w, tracks_[i]->dims.w, dimsFilterAlpha_);
-    tracks_[i]->dims.l =
-        filterEMA(obsArr[obsID].dims.l, tracks_[i]->dims.l, dimsFilterAlpha_);
+    // clang-format off
+    tracks_[i]->dims.h = filterEMA(obsArr[obsID].dims.h, tracks_[i]->dims.h, dimsFilterAlpha_);
+    tracks_[i]->dims.w = filterEMA(obsArr[obsID].dims.w, tracks_[i]->dims.w, dimsFilterAlpha_);
+    tracks_[i]->dims.l = filterEMA(obsArr[obsID].dims.l, tracks_[i]->dims.l, dimsFilterAlpha_);
+    // clang-format on
+
+    // decrement probabation observations to see (false positives filtering)
+    if (tracks_[i]->probLeft > 0) {
+      tracks_[i]->probLeft--;
+      if (tracks_[i]->probLeft == 0) {
+        tracks_[i]->valid = true;  // finally make track valid
+        KH_DEBUG("Track with ID " << tracks_[i]->trackID << " became valid.");
+      }
+    }
   }
 
   // create new tracks
@@ -80,9 +95,11 @@ void Tracker::update(const std::vector<Observation>& obsArr,
     if (isObsAssigned[j]) {
       continue;
     }
-    tracks_.emplace_back(make_unique<Track>(newTrackID()));
+    tracks_.emplace_back(std::make_unique<Track>(newTrackID()));
     tracks_.back()->KF.correct(obsArr[j].kalmanObs);
     tracks_.back()->dims = obsArr[j].dims;
+    KH_DEBUG("Created a new potential track with ID " << tracks_.back()->trackID
+                                                      << ".");
   }
 
   GC(timestamp);  // garbage collection
@@ -91,7 +108,11 @@ void Tracker::update(const std::vector<Observation>& obsArr,
 void Tracker::GC(const double timestamp)
 {
   auto isTimedOut = [timestamp, timeout = trackTimeout_](const auto& tr) {
-    return ((timestamp - tr->KF.lastObsTime()) > timeout);
+    if ((timestamp - tr->KF.lastObsTime()) > timeout) {
+      KH_DEBUG("Track with ID " << tr->trackID << " is timed out.");
+      return true;
+    }
+    return false;
   };
   tracks_.erase(remove_if(tracks_.begin(), tracks_.end(), isTimedOut),
                 tracks_.end());

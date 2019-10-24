@@ -12,6 +12,7 @@ namespace khmot {
 const double defaultDimsFilterAlpha = 0.1;
 const double defaultTrackTimeout = 10.0;
 const double defaultMahalanobisThresh = 3.0;
+const int defaultProbLeft = 5;
 
 using TrackID = unsigned int;
 constexpr TrackID maxTrackID = std::numeric_limits<TrackID>::max();
@@ -31,9 +32,11 @@ struct Track {
   TrackID trackID;
   Kalman KF;
   Dims dims;
+  int probLeft;
+  bool valid;
 
   Track(TrackID i, bool omnidirectional = true)
-      : trackID(i), KF(omnidirectional)
+      : trackID(i), KF(omnidirectional), probLeft(defaultProbLeft), valid(false)
   {
   }
 };

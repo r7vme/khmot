@@ -23,8 +23,9 @@ void Kalman::correct(KalmanObservation obs)
   if (!initialized_) {
     // Use first observation as ground truth.
     state_ = obs.state;
-    lastPredTime_ = obs.timestamp;
     P_ = obs.covariance;
+    lastObsTime_ = obs.timestamp;
+    lastPredTime_ = obs.timestamp;
     initialized_ = true;
     return;
   }
@@ -59,7 +60,8 @@ void Kalman::predict(const double timestamp)
   double yaw = state_(StateMemberYaw);
   double dt = timestamp - lastPredTime_;
   if (dt < 0) {
-    KH_DEBUG("Requested " << -dt << " seconds prediction to the past, skipping");
+    KH_DEBUG("Requested " << -dt
+                          << " seconds prediction to the past, skipping");
     return;
   }
   F_(StateMemberX, StateMemberVx) = (omnidirectional_) ? dt : ::cos(yaw) * dt;
