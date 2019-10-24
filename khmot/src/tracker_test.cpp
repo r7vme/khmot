@@ -183,4 +183,34 @@ TEST_CASE("Test tracker filters height", "[tracker]")
   CHECK(actualHeight == Approx(desiredHeight));
 }
 
+TEST_CASE("Test tracker drops false positives", "[tracker]")
+{
+  const double timestamp = 0.0;
+
+  Tracker t;
+  Observation obs;
+  std::vector<Observation> v{obs};
+  t.update(v, timestamp);
+
+  // check that tracks is NOT valid
+  CHECK(t.tracks().back()->valid == false);
+}
+
+TEST_CASE("Test tracker probabation period", "[tracker]")
+{
+  const double timestamp = 0.0;
+
+  Tracker t;
+  Observation obs;
+  std::vector<Observation> v{obs};
+  t.update(v, timestamp);
+
+  int steps = defaultProbLeft;
+  for (int i = 0; i < steps; ++i) {
+    t.update(v, timestamp);
+  }
+
+  CHECK(t.tracks().back()->valid == true);
+}
+
 }  // namespace khmot
