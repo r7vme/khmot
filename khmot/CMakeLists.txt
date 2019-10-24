@@ -3,6 +3,9 @@ project(khmot CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+# Enable debug logging for debug builds
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_LOG")
+
 ### ROS ###
 # Use "cmake -DDISABLE_ROS=TRUE .." to disable ROS
 if(NOT DISABLE_ROS)
@@ -44,6 +47,7 @@ add_library(khmot STATIC
   src/tracker.cpp
   src/kalman.hpp
   src/kalman.cpp
+  src/utils.hpp
 )
 set_target_properties(khmot PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 target_link_libraries(khmot eigen hungarian)
