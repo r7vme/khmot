@@ -1,4 +1,6 @@
 #pragma once
+#include "utils.hpp"
+
 #include <Eigen/Dense>
 #include <cmath>
 
@@ -7,6 +9,8 @@ namespace khmot {
 const int STATE_SIZE = 6;
 const int OBSERVATION_SIZE = 3;
 const double EPSILON = 1e-9;
+const double PI = M_PI;
+constexpr double TAU = 2 * M_PI;
 
 // clang-format off
 const auto defaultNoiseCov =
@@ -57,6 +61,7 @@ class Kalman {
   void predict(const double timestamp);
   double lastObsTime() const { return lastObsTime_; };
   void reset();
+  void wrapYaw();
 
  private:
   bool initialized_;
@@ -71,6 +76,7 @@ class Kalman {
   Covariance P_;       // Estimated error covariance matrix
 };
 
+double clampRotation(double rotation);
 void preprocessObs(KalmanObservation& obs);
 
 }  // namespace khmot

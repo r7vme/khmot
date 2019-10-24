@@ -35,9 +35,12 @@ void Kalman::correct(KalmanObservation obs)
   Eigen::MatrixXd K = pht * hphrInv;
 
   Eigen::VectorXd innovation = obs.state - H_ * state_;
+  // Clamp yaw innovation
+  innovation(StateMemberYaw) = clampRotation(innovation(StateMemberYaw));
 
   // (2) Apply innovation to the state. x = x + K(z - Hx)
   state_.noalias() += K * innovation;
+  wrapYaw();
 
   // (3) Update state covariance. P = (I - KH)P
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
@@ -56,6 +59,7 @@ void Kalman::predict(const double timestamp)
   double yaw = state_(StateMemberYaw);
   double dt = timestamp - lastPredTime_;
   if (dt < 0) {
+    KH_DEBUG("Requested " << -dt << " seconds prediction to the past, skipping");
     return;
   }
   F_(StateMemberX, StateMemberVx) = (omnidirectional_) ? dt : ::cos(yaw) * dt;
@@ -64,6 +68,7 @@ void Kalman::predict(const double timestamp)
 
   // Propagate state and error.
   state_ = F_ * state_;
+  wrapYaw();
   P_ = F_ * (P_ * F_.transpose()) + Q_;
 
   lastPredTime_ = timestamp;
@@ -74,6 +79,24 @@ void Kalman::reset()
   state_.setZero();
   P_.setZero();
   initialized_ = false;
+}
+
+void Kalman::wrapYaw()
+{
+  state_(StateMemberYaw) = clampRotation(state_(StateMemberYaw));
+}
+
+double clampRotation(double rotation)
+{
+  while (rotation > PI) {
+    rotation -= TAU;
+  }
+
+  while (rotation < -PI) {
+    rotation += TAU;
+  }
+
+  return rotation;
 }
 
 void preprocessObs(KalmanObservation& obs)
