@@ -13,6 +13,7 @@ const double PI = M_PI;
 constexpr double TAU = 2 * M_PI;
 
 // clang-format off
+// TODO: noise covariance matrix should be configurable
 const auto defaultNoiseCov =
     (Eigen::MatrixXd(STATE_SIZE, STATE_SIZE) << 0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
                                                 0.0, 0.5, 0.0, 0.0, 0.0, 0.0,

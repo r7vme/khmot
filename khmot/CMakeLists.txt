@@ -73,5 +73,7 @@ if(NOT DISABLE_ROS)
   set_target_properties(khmot_ros PROPERTIES CXX_CLANG_TIDY "clang-tidy")
   target_link_libraries(khmot_ros eigen khmot ${catkin_LIBRARIES})
   target_include_directories(khmot_ros PRIVATE src ${catkin_INCLUDE_DIRS})
+  install(TARGETS khmot_ros RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+  install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 endif()
 ### END ROS ###

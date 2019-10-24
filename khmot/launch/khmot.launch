@@ -1,0 +1,23 @@
+<launch>
+  <node pkg="khmot" type="khmot_ros" name="tracker" output="screen">
+    <!-- All observations will be first transformed into this frame -->
+    <param name="static_frame_id" value="map"/>
+    <!-- Publish objects frequency -->
+    <param name="publish_freq" value="10"/>
+    <!--
+      Alpha parameter for exponential moving average (EMA).
+      EMA used for bbox dimentions estimation.
+      https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+    -->
+    <param name="dims_filter_alpha" value="0.1"/>
+    <!--
+      Maximum mahalanobis distance allowed for new observation.
+      X, Y, Yaw with covariances are used to compute mahalanobis dist.
+    -->
+    <param name="mahalanobis_thresh" value="3.0"/>
+    <!--
+      Timeout in second after which track will be removed.
+    -->
+    <param name="track_timeout" value="5.0"/>
+  </node>
+</launch>
