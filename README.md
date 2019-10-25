@@ -16,7 +16,7 @@ Features:
 - ROS1 or stand-alone C++ library.
 
 TODO:
-- [https://github.com/r7vme/khmot/issues](github issues)
+- [github issues](https://github.com/r7vme/khmot/issues)
 
 # Build
 
